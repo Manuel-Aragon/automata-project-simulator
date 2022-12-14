@@ -1,108 +1,140 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cstdlib>
+#include <cstdio>
 
-//character
-class character{
-    //health
-    //action
+//debug macro
+#define DEBUG = true;
 
 
+enum class State
+{
+	STATE_START,
+	STATE_INITIATIVE,
+	STATE_END
 };
 
-//single square in grid
-struct coordinate{
-    //character to display
-    char display_character = ' ';
-
-    //function returns true if coordinate is occupied
-    //places character in square
-    //removes character from square
-
-};
-
-//2d grid
-struct grid{
-
-    int size;
-    std::vector<std::vector<coordinate>> matrix;
-
-    grid(int x){
-        size = x;
-        matrix.resize(size);
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                matrix[i].emplace_back(coordinate{});
-            }
-        }
-    };
-    ~grid(){
-        // for(int i = 0; i < size; i++){
-        //     for(int j = 0; j < size; j++){
-        //         delete matrix[i][j];
-        //     }
-        // }
-    }
-
-    //vector to hold grid
-
-
-    //moves character form one square to another
-
-    //display grid to console;
-    void display(){
-        std::cout << "Game Board\n";
-        //display upper lines
-        // for(int i = 0; i < size; i++){
-        //     std::cout << '_';
-        // }
-
-        for(int i = 0; i < (size*2) + 1; i++){
-            std::cout << '_';
-        }
-        std::cout << '\n';
-        for(int i = 0; i < size; i++){
-            //display coordinate marker
-            std::cout << '|';
-            for(int j = 0; j < size; j++){
-                std::cout << matrix[i][j].display_character;
-                std::cout << '|';
-            }
-            std::cout << '\n';
-            for(int i = 0; i < (size*2) + 1; i++){
-                std::cout << '-';
-            }
-            std::cout << '\n';
-        }
-    }
-};
-
-
-void simulate(int board_size){
-    //anounce simulation start
-    std::cout << "Simulation Start\n";
-
-    //initialize gameboard
-    grid gameBoard(board_size);
-    //display baord
-    gameBoard.display();
-
-    //state machine
-        //Start State
-            //establish positions
-            //roll initative
-        //Combat
-            //take turns until one is dead
-        //End State
-            //declare winner
-            //clean up
-
-    //announce simulation end
-    std::cout << "Simulation Complete\n";
+//print grid to console
+void printGrid(std::vector<std::vector<char>> grid) {
+	//std::cout << "Grid:" << std::endl;
+	std::cout << "----------------------" << std::endl;
+	for (int i = 0; i < grid.size(); i++) {
+		std::cout << "|";
+		for (int j = 0; j < grid[i].size(); j++) {
+			std::cout << grid[i][j] << " ";
+		}
+		std::cout << "|";
+		std::cout << std::endl;
+	}
+	std::cout << "----------------------" << std::endl;
 }
 
-int main(){
+//create an enitity class
+class Entity {
+public:
+	std::string name;
+	int x;
+	int y;
+	char symbol;
+	int initiative;
+	int health;
+	int damage;
+	bool isAlive;
+	Entity(std::string name = "",int x = 0, int y = 0, char symbol = 'x', int initiative = 0, int health = 10, int damage = 1) {
+		this->name = name;
+		this->x = x;
+		this->y = y;
+		this->symbol = symbol;
+		this->initiative = initiative;
+		this->health = health;
+		this->damage = damage;
+		this->isAlive = true;
+	}
+	void move(int x, int y) {
+		this->x = x;
+		this->y = y;
+	}
+	void attack(Entity* entity) {
+		entity->health -= this->damage;
+		if (entity->health <= 0) {
+			entity->isAlive = false;
+		}
+	}
+};
 
-    int board_size = 5;
-    simulate(board_size);
+void clearScreen() {
+#ifdef _WIN32
+	system("cls");
+#else
+	system("clear");
+#endif
+}
+
+void simulator() {
+	std::vector<std::vector<char>> grid(10, std::vector<char>(10, ' '));
+	State state = State::STATE_START;
+	std::string name;
+
+	//output "Enter name of player" to console
+	std::cout << "Enter name of player" << std::endl;
+	std::cin >> name;
+	//clear console screen
+	clearScreen();
+
+
+	Entity player(name, 0,0, 'P');
+	Entity enemy("monster", 9,9,'M',0,10,2);
+	
+	while (true) {
+		//transition between states
+		switch (state)
+		{
+		case State::STATE_START:
+		{
+			//put player and monster on grid
+			grid[player.x][player.y] = player.symbol;
+			grid[enemy.x][enemy.y] = enemy.symbol;
+			
+			//display grid and text
+			std::cout << "Starting simulation" << std::endl;
+			std::cout << player.name << " vs " << enemy.name << std::endl;
+			printGrid(grid);
+
+			//wait for input
+			std::cout << "Press enter to continue." << std::endl;
+			fflush(stdin);
+			getchar();
+			
+			//go to next state
+			state = State::STATE_INITIATIVE;
+			clearScreen();
+			break;
+		}
+		case State::STATE_INITIATIVE:
+		{
+			std::cout << "Initiative phase" << std::endl;
+			//randomly decide who goes first
+			std::cout << "Rolling Dice to decide turn order" << std::endl;
+			player.initiative = rand() % 2;
+			enemy.initiative = rand() % 2;
+			std::cout << player.name << " initiative: " << player.initiative << std::endl;
+			
+			state = State::STATE_END;
+			break;
+		}
+
+		case State::STATE_END:
+		{
+			std::cout << "Ending simulation" << std::endl;
+			return;
+		}
+		}
+	}
+}
+
+
+int main() {
+	simulator();
+	return 0;
 }
