@@ -3,11 +3,18 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstdio>
+
+#ifdef __linux__ 
+#include "kbhit.h"
+#include <unistd.h>
+#elif _WIN32
+#include <conio.h>
+#else
+#include "kbhit.h"
+#include <unistd.h>
+#endif
+
 #include "input.h"
-
-//debug macro
-#define DEBUG = true;
-
 
 enum class State
 {
@@ -217,7 +224,13 @@ void simulator() {
 			std::cout << player.name << " initiative: " << player.initiative << std::endl;
 			std::cout << enemy.name << " initiative: " << enemy.initiative << std::endl;
 
-			system("pause");
+						//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 
 			//go to next state
 			state = State::STATE_COMBAT;
@@ -265,7 +278,7 @@ void simulator() {
 					char input = -1;
 					while (input == -1) {
 						std::cout << "What do you want to do?\n"
-							<< "Move(1), Attack(2)\n"
+							<< "Move(1), Attack(2), GiveUp(3)\n"
 							<< "Enter your choice.\n";
 						std::cin >> input;
 						switch (input)
@@ -276,8 +289,8 @@ void simulator() {
 						case 2:
 							action_state = EntityStates::STATE_MOVE;
 							break;
-						default:
-							input = -1;
+						case 3:
+							exit = true;
 							break;
 						}
 					}
@@ -290,7 +303,7 @@ void simulator() {
 					has_attacked = true;
 					std::cout << player.name << " attacked " << enemy.name << " and did " << player.damage
 						<< " points of damage!\n";
-					system("pause");
+								//wait for input
 
 					// Check if enemy is  alive
 					if (!enemy.isAlive) {
@@ -375,7 +388,13 @@ void simulator() {
 					printEntityValues(player, enemy);
 					grid.printGrid();
 					std::cout << player.name << " moved!";
-					system("pause");
+								//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 
 
 					//if (has_attacked == false) {
@@ -390,7 +409,13 @@ void simulator() {
 				case EntityStates::STATE_END:
 				{
 					std::cout << player.name << "'S turn is ending." << std::endl;
-					system("pause");
+								//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 					exit = true;
 					break;
 				}
@@ -464,7 +489,13 @@ void simulator() {
 					attacked = true;
 					std::cout << enemy.name << " attacked " << player.name << " and did " << enemy.damage
 						<< " points of damage!\n";
-					system("pause");
+								//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 
 					// Check if player is  not alive
 					if (!player.isAlive) {
@@ -490,7 +521,13 @@ void simulator() {
 					printEntityValues(player, enemy);
 					grid.printGrid();
 					std::cout << enemy.name << " moved!";
-					system("pause");
+								//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 
 
 					actions = EntityStates::STATE_END;
@@ -500,7 +537,13 @@ void simulator() {
 				case EntityStates::STATE_END:
 				{
 					std::cout << enemy.name << "'S turn is ending." << std::endl;
-					system("pause");
+								//wait for input
+			std::cout << "Press any key to continue." << std::endl;
+			//fflush(stdin);
+			int key = -1;
+			while (key == -1) {
+				key = Input();
+			}
 					exit = true;
 					break;
 				}
